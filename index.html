@@ -23,21 +23,35 @@ h1{font-size:1.4rem;margin:4px 0}
 button,label.btn{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer}
 button:hover,label.btn:hover{border-color:var(--accent)}
 #win{display:none;margin-top:12px;font-weight:600;color:var(--accent);font-size:1.1rem}
-#prev{display:none;width:min(92vw,480px);aspect-ratio:1;border-radius:10px;margin-top:12px}
+#prev{display:none;width:min(92vw,480px);aspect-ratio:1;border-radius:10px}
+
+/* Mise en page : empilé par défaut (téléphone), côte à côte sur grand écran */
+.game{display:flex;flex-direction:column;align-items:center;gap:12px}
+.main{display:flex;flex-direction:column;align-items:center}
+@media (min-width:1100px){
+  .game{flex-direction:row;align-items:flex-start;justify-content:center;gap:28px}
+}
 </style>
 </head>
 <body>
 <h1>🧩 Puzzle 25 pièces</h1>
 <div class="info"><span>Coups : <b id="moves">0</b></span><span>Bien placées : <b id="ok">0</b>/25</span></div>
-<div id="board"></div>
-<div id="win">Bravo, puzzle terminé ! 🎉</div>
-<canvas id="prev" width="600" height="600"></canvas>
+
+<div class="game">
+  <div class="main">
+    <div id="board"></div>
+    <div id="win">Bravo, puzzle terminé ! 🎉</div>
+  </div>
+  <canvas id="prev" width="600" height="600"></canvas>
+</div>
+
 <div class="btns">
   <button id="shuffle">Mélanger</button>
   <button id="peek">Aperçu</button>
   <label class="btn">Ma photo<input id="file" type="file" accept="image/*" hidden></label>
 </div>
 <p style="font-size:.85rem;opacity:.7;margin-top:12px;text-align:center">Clique sur deux pièces pour les échanger, ou glisse-en une sur une autre.</p>
+
 <script>
 const N=5, TOTAL=N*N;
 const board=document.getElementById('board');
