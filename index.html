@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Puzzle 25 pièces</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<style>
+:root{--bg:#f6f4ef;--fg:#222;--card:#fff;--accent:#d9622b;--line:rgba(0,0,0,.18);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.25);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.25);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:16px}
+h1{font-size:1.4rem;margin:4px 0}
+.info{display:flex;gap:16px;margin:6px 0 12px;font-size:.95rem}
+#board{width:min(92vw,480px);aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:var(--card);padding:4px;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+.tile{background-repeat:no-repeat;background-size:500% 500%;border-radius:3px;cursor:grab;outline:1px solid var(--line);outline-offset:-1px;transition:transform .12s,filter .12s;touch-action:manipulation}
+.tile.sel{transform:scale(.92);outline:3px solid var(--accent);z-index:1}
+.tile.ok{filter:brightness(1.05)}
+.tile.drag{opacity:.4}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center}
+button,label.btn{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer}
+button:hover,label.btn:hover{border-color:var(--accent)}
+#win{display:none;margin-top:12px;font-weight:600;color:var(--accent);font-size:1.1rem}
+#prev{display:none;width:min(92vw,480px);aspect-ratio:1;border-radius:10px;margin-top:12px}
+</style>
+</head>
+<body>
+<h1>🧩 Puzzle 25 pièces</h1>
+<div class="info"><span>Coups : <b id="moves">0</b></span><span>Bien placées : <b id="ok">0</b>/25</span></div>
+<div id="board"></div>
+<div id="win">Bravo, puzzle terminé ! 🎉</div>
+<canvas id="prev" width="600" height="600"></canvas>
+<div class="btns">
+  <button id="shuffle">Mélanger</button>
+  <button id="peek">Aperçu</button>
+  <label class="btn">Ma photo<input id="file" type="file" accept="image/*" hidden></label>
+</div>
+<p style="font-size:.85rem;opacity:.7;margin-top:12px;text-align:center">Clique sur deux pièces pour les échanger, ou glisse-en une sur une autre.</p>
+<script>
+const N=5, TOTAL=N*N;
+const board=document.getElementById('board');
+const prev=document.getElementById('prev');
+let imgURL='', order=[], sel=null, moves=0, dragFrom=null;
+
+function drawDefault(c){
+  const x=c.getContext('2d'),W=c.width;
+  const g=x.createLinearGradient(0,0,0,W);
+  g.addColorStop(0,'#2b2d6e');g.addColorStop(.45,'#e8604c');g.addColorStop(.7,'#ffb347');g.addColorStop(1,'#ffe29a');
+  x.fillStyle=g;x.fillRect(0,0,W,W);
+  x.fillStyle='#fff';
+  for(let i=0;i<40;i++){x.globalAlpha=Math.random()*.8;x.beginPath();x.arc(Math.random()*W,Math.random()*W*.3,Math.random()*2+.5,0,7);x.fill()}
+  x.globalAlpha=1;
+  x.fillStyle='#fff3b0';x.beginPath();x.arc(W*.65,W*.5,W*.12,0,7);x.fill();
+  const m=(col,pts)=>{x.fillStyle=col;x.beginPath();x.moveTo(0,W);pts.forEach(p=>x.lineTo(p[0]*W,p[1]*W));x.lineTo(W,W);x.fill()};
+  m('#6b3f7a',[[0,.7],[.2,.5],[.4,.68],[.6,.45],[.8,.65],[1,.55]]);
+  m('#3b2358',[[0,.82],[.25,.65],[.5,.8],[.75,.62],[1,.78]]);
+  m('#1d1233',[[0,.93],[.3,.82],[.6,.92],[.85,.84],[1,.9]]);
+  x.fillStyle='#fff';x.font='bold 56px system-ui,sans-serif';x.textAlign='center';x.fillText('PUZZLE',W/2,W*.2);
+}
+
+function setImage(url){imgURL=url;const i=new Image();i.onload=()=>{const x=prev.getContext('2d');const s=Math.min(i.width,i.height);x.drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,600,600)};i.src=url;}
+
+function shuffle(){
+  order=[...Array(TOTAL).keys()];
+  do{for(let i=TOTAL-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}}while(order.some((v,i)=>v===i));
+  moves=0;sel=null;document.getElementById('win').style.display='none';render();
+}
+
+function swap(a,b){[order[a],order[b]]=[order[b],order[a]];moves++;sel=null;render();}
+
+function render(){
+  board.innerHTML='';
+  let ok=0;
+  order.forEach((v,pos)=>{
+    const t=document.createElement('div');
+    t.className='tile';
+    const col=v%N,row=Math.floor(v/N);
+    t.style.backgroundImage=`url(${imgURL})`;
+    t.style.backgroundPosition=`${col*100/(N-1)}% ${row*100/(N-1)}%`;
+    if(v===pos){ok++;t.classList.add('ok')}
+    if(sel===pos)t.classList.add('sel');
+    t.draggable=true;
+    t.onclick=()=>{if(sel===null)sel=pos;else if(sel===pos)sel=null;else return swap(sel,pos);render()};
+    t.ondragstart=e=>{dragFrom=pos;t.classList.add('drag');e.dataTransfer.effectAllowed='move'};
+    t.ondragover=e=>e.preventDefault();
+    t.ondrop=e=>{e.preventDefault();if(dragFrom!==null&&dragFrom!==pos)swap(dragFrom,pos);dragFrom=null};
+    t.ondragend=()=>{dragFrom=null;t.classList.remove('drag')};
+    board.appendChild(t);
+  });
+  document.getElementById('moves').textContent=moves;
+  document.getElementById('ok').textContent=ok;
+  if(ok===TOTAL)document.getElementById('win').style.display='block';
+}
+
+document.getElementById('shuffle').onclick=shuffle;
+document.getElementById('peek').onclick=()=>{prev.style.display=prev.style.display==='block'?'none':'block'};
+document.getElementById('file').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{setImage(r.result);shuffle()};
+  r.readAsDataURL(f);
+};
+
+const c=document.createElement('canvas');c.width=c.height=600;drawDefault(c);
+setImage(c.toDataURL('image/jpeg',.9));
+shuffle();
+</script>
+</body>
+</html>
