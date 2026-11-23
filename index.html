@@ -28,10 +28,10 @@ button:hover,label.btn:hover{border-color:var(--accent)}
 /* Mise en page : empilé par défaut (téléphone), côte à côte sur grand écran */
 .game{display:flex;flex-direction:column;align-items:center;gap:12px}
 .main{display:flex;flex-direction:column;align-items:center}
-@media (min-width:1100px){
-  .game{flex-direction:row;align-items:flex-start;justify-content:center;gap:28px}
-}
-</style>
+@media (min-width:900px){
+  .game{flex-direction:row;align-items:flex-start;justify-content:center;gap:24px}
+  #board,#prev{width:min(44vw,480px)}
+}</style>
 </head>
 <body>
 <h1>🧩 Puzzle 25 pièces</h1>
