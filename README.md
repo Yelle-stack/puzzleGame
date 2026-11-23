@@ -42,3 +42,7 @@ That's it, everything is in a single file.
 ## Built with
 
 HTML, CSS, vanilla JavaScript and SVG.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
