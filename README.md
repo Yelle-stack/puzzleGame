@@ -4,7 +4,7 @@ A 5×5 image puzzle game built with plain HTML, CSS and JavaScript. No framework
 
 **▶️ [Play it here](https://yelle-stack.github.io/puzzleGame/)**
 
-![Screenshot of the puzzle game](puzzle-preview.png)
+![Screenshot of the puzzle game](puzzlePhoto.png)
 
 ## How to play
 
