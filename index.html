@@ -12,9 +12,9 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:16px}
-h1{font-size:1.4rem;margin:4px 0 8px}
+h1{font-size:1.4rem;margin:4px 0 8px;text-align:center}
 .info{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-bottom:10px;font-size:.95rem}
-svg{display:block;touch-action:none;user-select:none;-webkit-user-select:none;height:auto}
+svg{display:block;touch-action:none;user-select:none;-webkit-user-select:none;height:auto;max-width:100%;max-height:max(calc(100vh - 250px),520px);max-height:max(calc(100dvh - 250px),520px)}
 .bd{fill:var(--card)}
 .tr{fill:rgba(128,128,128,.1);stroke:var(--line);stroke-dasharray:6 6}
 .pc{cursor:grab}
@@ -26,6 +26,13 @@ button,label.btn{font:inherit;background:var(--card);color:var(--fg);border:1px 
 button:hover,label.btn:hover{border-color:var(--accent)}
 button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 .help{font-size:.85rem;opacity:.7;text-align:center;max-width:520px}
+@media (max-width:600px){
+  body{padding:8px}
+  h1{font-size:1.2rem}
+  .info{font-size:.85rem;gap:4px 12px}
+  button,label.btn{padding:7px 10px;font-size:.9rem}
+  .help{font-size:.8rem}
+}
 </style>
 </head>
 <body>
@@ -43,7 +50,7 @@ button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 <p class="help">Glisse chaque pièce à sa place. Touche une pièce sans la déplacer pour la faire pivoter. Quand elle est bien placée et dans le bon sens, elle se verrouille toute seule.</p>
 <script>
 const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',svg=$('svg'),S=600,B=20;
-let n=10,c=60,rotOn=true,guideOn=true,imgURL='',H,V,placed=0,t0=0,timer=null,over=false,drag=null,gLoose,gLocked,VW,VH,ghost;
+let n=innerWidth<600?5:10,c=60,rotOn=true,guideOn=true,imgURL='',H,V,placed=0,t0=0,timer=null,over=false,drag=null,gLoose,gLocked,VW,VH,ghost,lastLand;
 const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
 const fmt=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 const stopT=()=>{clearInterval(timer);timer=null};
@@ -88,6 +95,7 @@ function build(){
   H=Array.from({length:n+1},(_,r)=>Array.from({length:n},()=>r===0||r===n?0:Math.random()<.5?1:-1));
   V=Array.from({length:n},()=>Array.from({length:n+1},(_,k)=>k===0||k===n?0:Math.random()<.5?1:-1));
   const land=innerWidth>=innerHeight*1.1,tw=land?520:S,th=land?S:480;
+  lastLand=land;
   VW=land?3*B+S+tw:S+2*B;VH=land?S+2*B:3*B+S+th;
   const tx=land?2*B+S:B,ty=land?B:2*B+S;
   svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);
@@ -161,7 +169,7 @@ svg.addEventListener('pointercancel',()=>{drag=null});
   b.onclick=()=>{n=s;document.querySelectorAll('#sizes button').forEach(x=>x.classList.toggle('on',+x.dataset.n===n));build()};
   $('sizes').appendChild(b);
 });
-document.querySelector('#sizes button[data-n="10"]').classList.add('on');
+document.querySelector('#sizes button[data-n="'+n+'"]').classList.add('on');
 $('shuffle').onclick=build;
 $('rot').onclick=()=>{rotOn=!rotOn;$('rot').classList.toggle('on',rotOn);build()};
 $('guide').onclick=()=>{guideOn=!guideOn;$('guide').classList.toggle('on',guideOn);ghost.setAttribute('opacity',guideOn?.18:0)};
@@ -180,6 +188,10 @@ $('file').onchange=e=>{
   };
   r.readAsDataURL(f);
 };
+addEventListener('resize',()=>{
+  const land=innerWidth>=innerHeight*1.1;
+  if(land!==lastLand&&!timer&&!placed)build();
+});
 const c0=document.createElement('canvas');c0.width=c0.height=1000;drawDefault(c0);
 setImage(c0.toDataURL('image/jpeg',.9));
 </script>
