@@ -1,4 +1,4 @@
-# 🧩 puzzleGame
+# 🧩👾 puzzleGame
 
 A 5×5 image puzzle game built with plain HTML, CSS and JavaScript. No frameworks, no installation: just open it in your browser and play.
 
