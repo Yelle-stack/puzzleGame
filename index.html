@@ -3,123 +3,185 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Puzzle 25 pièces</title>
+<title>Puzzle 100 pièces</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
 <style>
-:root{--bg:#f6f4ef;--fg:#222;--card:#fff;--accent:#d9622b;--line:rgba(0,0,0,.18);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.25);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.25);color-scheme:dark}
+:root{--bg:#f6f4ef;--fg:#222;--card:#fff;--accent:#d9622b;--line:rgba(0,0,0,.25);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.3);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.3);color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:16px}
-h1{font-size:1.4rem;margin:4px 0}
-.info{display:flex;gap:16px;margin:6px 0 12px;font-size:.95rem}
-#board{width:min(92vw,480px);aspect-ratio:1;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:var(--card);padding:4px;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.18)}
-.tile{background-repeat:no-repeat;background-size:500% 500%;border-radius:3px;cursor:grab;outline:1px solid var(--line);outline-offset:-1px;transition:transform .12s,filter .12s;touch-action:manipulation}
-.tile.sel{transform:scale(.92);outline:3px solid var(--accent);z-index:1}
-.tile.ok{filter:brightness(1.05)}
-.tile.drag{opacity:.4}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center}
+h1{font-size:1.4rem;margin:4px 0 8px}
+.info{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-bottom:10px;font-size:.95rem}
+svg{display:block;touch-action:none;user-select:none;-webkit-user-select:none;height:auto}
+.bd{fill:var(--card)}
+.tr{fill:rgba(128,128,128,.1);stroke:var(--line);stroke-dasharray:6 6}
+.pc{cursor:grab}
+.done{cursor:default}
+.done>path{stroke:rgba(0,0,0,.15)}
+#msg{min-height:1.4em;font-weight:600;color:var(--accent);text-align:center;margin-top:8px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;justify-content:center}
 button,label.btn{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer}
 button:hover,label.btn:hover{border-color:var(--accent)}
-#win{display:none;margin-top:12px;font-weight:600;color:var(--accent);font-size:1.1rem}
-#prev{display:none;width:min(92vw,480px);aspect-ratio:1;border-radius:10px}
-
-/* Mise en page : empilé par défaut (téléphone), côte à côte sur grand écran */
-.game{display:flex;flex-direction:column;align-items:center;gap:12px}
-.main{display:flex;flex-direction:column;align-items:center}
-@media (min-width:900px){
-  .game{flex-direction:row;align-items:flex-start;justify-content:center;gap:24px}
-  #board,#prev{width:min(44vw,480px)}
-}</style>
+button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.help{font-size:.85rem;opacity:.7;text-align:center;max-width:520px}
+</style>
 </head>
 <body>
-<h1>🧩 Puzzle 25 pièces</h1>
-<div class="info"><span>Coups : <b id="moves">0</b></span><span>Bien placées : <b id="ok">0</b>/25</span></div>
-
-<div class="game">
-  <div class="main">
-    <div id="board"></div>
-    <div id="win">Bravo, puzzle terminé ! 🎉</div>
-  </div>
-  <canvas id="prev" width="600" height="600"></canvas>
-</div>
-
+<h1>🧩 Puzzle <span id="count">100</span> pièces</h1>
+<div class="info"><span>Temps : <b id="time">0:00</b></span><span>Placées : <b id="placed">0</b>/<span id="total">100</span></span><span>Record : <b id="best">–</b></span></div>
+<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="msg"></div>
+<div class="btns" id="sizes"></div>
 <div class="btns">
-  <button id="shuffle">Mélanger</button>
-  <button id="peek">Aperçu</button>
+  <button id="shuffle">Nouvelle partie</button>
+  <button id="rot" class="on">Rotation</button>
+  <button id="guide" class="on">Guide</button>
   <label class="btn">Ma photo<input id="file" type="file" accept="image/*" hidden></label>
 </div>
-<p style="font-size:.85rem;opacity:.7;margin-top:12px;text-align:center">Clique sur deux pièces pour les échanger, ou glisse-en une sur une autre.</p>
-
+<p class="help">Glisse chaque pièce à sa place. Touche une pièce sans la déplacer pour la faire pivoter. Quand elle est bien placée et dans le bon sens, elle se verrouille toute seule.</p>
 <script>
-const N=5, TOTAL=N*N;
-const board=document.getElementById('board');
-const prev=document.getElementById('prev');
-let imgURL='', order=[], sel=null, moves=0, dragFrom=null;
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',svg=$('svg'),S=600,B=20;
+let n=10,c=60,rotOn=true,guideOn=true,imgURL='',H,V,placed=0,t0=0,timer=null,over=false,drag=null,gLoose,gLocked,VW,VH,ghost;
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+const fmt=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const stopT=()=>{clearInterval(timer);timer=null};
+const key=()=>'jig-'+n+(rotOn?'r':'n');
 
-function drawDefault(c){
-  const x=c.getContext('2d'),W=c.width;
+function drawDefault(cv){
+  const x=cv.getContext('2d'),W=cv.width;
   const g=x.createLinearGradient(0,0,0,W);
-  g.addColorStop(0,'#2b2d6e');g.addColorStop(.45,'#e8604c');g.addColorStop(.7,'#ffb347');g.addColorStop(1,'#ffe29a');
+  g.addColorStop(0,'#1f2a6b');g.addColorStop(.4,'#b5457a');g.addColorStop(.62,'#ff8a4c');g.addColorStop(.75,'#ffd27a');g.addColorStop(1,'#2a6f8f');
   x.fillStyle=g;x.fillRect(0,0,W,W);
   x.fillStyle='#fff';
-  for(let i=0;i<40;i++){x.globalAlpha=Math.random()*.8;x.beginPath();x.arc(Math.random()*W,Math.random()*W*.3,Math.random()*2+.5,0,7);x.fill()}
-  x.globalAlpha=1;
-  x.fillStyle='#fff3b0';x.beginPath();x.arc(W*.65,W*.5,W*.12,0,7);x.fill();
-  const m=(col,pts)=>{x.fillStyle=col;x.beginPath();x.moveTo(0,W);pts.forEach(p=>x.lineTo(p[0]*W,p[1]*W));x.lineTo(W,W);x.fill()};
-  m('#6b3f7a',[[0,.7],[.2,.5],[.4,.68],[.6,.45],[.8,.65],[1,.55]]);
-  m('#3b2358',[[0,.82],[.25,.65],[.5,.8],[.75,.62],[1,.78]]);
-  m('#1d1233',[[0,.93],[.3,.82],[.6,.92],[.85,.84],[1,.9]]);
-  x.fillStyle='#fff';x.font='bold 56px system-ui,sans-serif';x.textAlign='center';x.fillText('PUZZLE',W/2,W*.2);
+  for(let i=0;i<90;i++){x.globalAlpha=Math.random()*.9;x.beginPath();x.arc(Math.random()*W,Math.random()*W*.4,Math.random()*2.5+.5,0,7);x.fill()}
+  x.globalAlpha=1;x.fillStyle='#fff3b0';x.beginPath();x.arc(W*.65,W*.55,W*.1,0,7);x.fill();
+  const m=(col,p)=>{x.fillStyle=col;x.beginPath();x.moveTo(0,W*.78);p.forEach(q=>x.lineTo(q[0]*W,q[1]*W));x.lineTo(W,W*.78);x.fill()};
+  m('#7a3f8a',[[0,.66],[.15,.48],[.3,.64],[.5,.42],[.7,.62],[.85,.5],[1,.6]]);
+  m('#43245f',[[0,.74],[.2,.6],[.45,.72],[.7,.58],[1,.72]]);
+  x.fillStyle='#16324a';x.fillRect(0,W*.78,W,W*.22);
+  for(let i=0;i<60;i++){x.fillStyle=`hsla(${Math.random()*60+10},90%,65%,.5)`;x.fillRect(Math.random()*W,W*.78+Math.random()*W*.22,Math.random()*90+20,3)}
+  for(let i=0;i<45;i++){x.fillStyle=`hsla(${Math.random()*360},85%,60%,.55)`;x.beginPath();x.arc(Math.random()*W,Math.random()*W,Math.random()*22+6,0,7);x.fill()}
+}
+function setImage(u){imgURL=u;build()}
+
+function edge(x0,y0,x1,y1,nx,ny,s){
+  if(!s)return `L${x1} ${y1}`;
+  const dx=x1-x0,dy=y1-y0;
+  const P=(t,h)=>`${(x0+dx*t+nx*h*c*s).toFixed(1)} ${(y0+dy*t+ny*h*c*s).toFixed(1)}`;
+  return `L${P(.38,0)}C${P(.38,.08)} ${P(.32,.12)} ${P(.32,.2)}C${P(.32,.32)} ${P(.68,.32)} ${P(.68,.2)}C${P(.68,.12)} ${P(.62,.08)} ${P(.62,0)}L${x1} ${y1}`;
+}
+function pathFor(r,k){
+  return `M0 0${edge(0,0,c,0,0,-1,-H[r][k])}${edge(c,0,c,c,1,0,V[r][k+1])}${edge(c,c,0,c,0,1,H[r+1][k])}${edge(0,c,0,0,-1,0,-V[r][k])}Z`;
+}
+const setT=p=>p.g.setAttribute('transform',`translate(${p.x} ${p.y}) rotate(${p.rot} ${c/2} ${c/2})`);
+
+function showBest(){
+  try{const b=localStorage.getItem(key());$('best').textContent=b?fmt(+b):'–'}catch(e){$('best').textContent='–'}
+}
+function build(){
+  stopT();over=false;placed=0;drag=null;c=S/n;
+  $('time').textContent='0:00';$('msg').textContent='';$('placed').textContent=0;
+  $('total').textContent=n*n;$('count').textContent=n*n;showBest();
+  svg.innerHTML='';
+  H=Array.from({length:n+1},(_,r)=>Array.from({length:n},()=>r===0||r===n?0:Math.random()<.5?1:-1));
+  V=Array.from({length:n},()=>Array.from({length:n+1},(_,k)=>k===0||k===n?0:Math.random()<.5?1:-1));
+  const land=innerWidth>=innerHeight*1.1,tw=land?520:S,th=land?S:480;
+  VW=land?3*B+S+tw:S+2*B;VH=land?S+2*B:3*B+S+th;
+  const tx=land?2*B+S:B,ty=land?B:2*B+S;
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);
+  svg.style.width=land?'min(97vw,1100px)':'min(94vw,520px)';
+  const defs=el('defs',{},svg);
+  el('image',{id:'im',href:imgURL,width:S,height:S,preserveAspectRatio:'xMidYMid slice'},defs);
+  el('rect',{class:'tr',x:tx,y:ty,width:tw,height:th,rx:10},svg);
+  el('rect',{class:'bd',x:B,y:B,width:S,height:S,rx:4},svg);
+  ghost=el('use',{href:'#im',x:B,y:B,opacity:guideOn?.18:0},svg);
+  gLocked=el('g',{},svg);gLoose=el('g',{},svg);
+  const cols=Math.ceil(Math.sqrt(n*n*tw/th)),rows=Math.ceil(n*n/cols),mg=.35*c;
+  const cells=[...Array(cols*rows).keys()].sort(()=>Math.random()-.5);
+  for(let i=0;i<n*n;i++){
+    const r=Math.floor(i/n),k=i%n,d=pathFor(r,k),g=el('g',{class:'pc'},gLoose);
+    const cp=el('clipPath',{id:'cp'+i},defs);el('path',{d},cp);
+    const cg=el('g',{'clip-path':`url(#cp${i})`},g);
+    el('use',{href:'#im',x:-k*c,y:-r*c},cg);
+    el('path',{d,fill:'none',stroke:'rgba(0,0,0,.45)','stroke-width':1.2},g);
+    const q=cells[i],cx=q%cols,cy=Math.floor(q/cols);
+    const p={g,r,col:k,done:false,rot:rotOn?90*Math.floor(Math.random()*4):0};
+    p.x=tx+mg+(cols>1?cx/(cols-1):.5)*(tw-c-2*mg)+(Math.random()-.5)*8;
+    p.y=ty+mg+(rows>1?cy/(rows-1):.5)*(th-c-2*mg)+(Math.random()-.5)*8;
+    g._p=p;setT(p);
+  }
 }
 
-function setImage(url){imgURL=url;const i=new Image();i.onload=()=>{const x=prev.getContext('2d');const s=Math.min(i.width,i.height);x.drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,600,600)};i.src=url;}
-
-function shuffle(){
-  order=[...Array(TOTAL).keys()];
-  do{for(let i=TOTAL-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}}while(order.some((v,i)=>v===i));
-  moves=0;sel=null;document.getElementById('win').style.display='none';render();
+function pt(e){const q=svg.createSVGPoint();q.x=e.clientX;q.y=e.clientY;return q.matrixTransform(svg.getScreenCTM().inverse())}
+function trySnap(p){
+  const X=B+p.col*c,Y=B+p.r*c;
+  if(p.rot%360!==0||Math.hypot(p.x-X,p.y-Y)>c*.35)return;
+  p.x=X;p.y=Y;setT(p);p.done=true;p.g.setAttribute('class','pc done');gLocked.appendChild(p.g);
+  $('placed').textContent=++placed;
+  if(placed===n*n)win();
 }
-
-function swap(a,b){[order[a],order[b]]=[order[b],order[a]];moves++;sel=null;render();}
-
-function render(){
-  board.innerHTML='';
-  let ok=0;
-  order.forEach((v,pos)=>{
-    const t=document.createElement('div');
-    t.className='tile';
-    const col=v%N,row=Math.floor(v/N);
-    t.style.backgroundImage=`url(${imgURL})`;
-    t.style.backgroundPosition=`${col*100/(N-1)}% ${row*100/(N-1)}%`;
-    if(v===pos){ok++;t.classList.add('ok')}
-    if(sel===pos)t.classList.add('sel');
-    t.draggable=true;
-    t.onclick=()=>{if(sel===null)sel=pos;else if(sel===pos)sel=null;else return swap(sel,pos);render()};
-    t.ondragstart=e=>{dragFrom=pos;t.classList.add('drag');e.dataTransfer.effectAllowed='move'};
-    t.ondragover=e=>e.preventDefault();
-    t.ondrop=e=>{e.preventDefault();if(dragFrom!==null&&dragFrom!==pos)swap(dragFrom,pos);dragFrom=null};
-    t.ondragend=()=>{dragFrom=null;t.classList.remove('drag')};
-    board.appendChild(t);
-  });
-  document.getElementById('moves').textContent=moves;
-  document.getElementById('ok').textContent=ok;
-  if(ok===TOTAL)document.getElementById('win').style.display='block';
+function win(){
+  over=true;stopT();const t=Date.now()-t0;let rec='';
+  try{const b=localStorage.getItem(key());if(!b||t<+b){rec=' Nouveau record ! 🏆';localStorage.setItem(key(),t)}}catch(e){}
+  $('msg').textContent='Bravo ! Puzzle terminé en '+fmt(t)+'.'+rec;showBest();
 }
+svg.addEventListener('pointerdown',e=>{
+  const g=e.target.closest('g.pc');if(!g||over)return;
+  const p=g._p;if(p.done)return;
+  e.preventDefault();gLoose.appendChild(g);
+  const q=pt(e);drag={p,dx:q.x-p.x,dy:q.y-p.y,sx:e.clientX,sy:e.clientY,moved:false};
+  try{svg.setPointerCapture(e.pointerId)}catch(_){}
+});
+svg.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>5)drag.moved=true;
+  if(!drag.moved)return;
+  if(!timer&&!over){t0=Date.now();timer=setInterval(()=>{$('time').textContent=fmt(Date.now()-t0)},250)}
+  const q=pt(e),p=drag.p;
+  p.x=Math.max(-.2*c,Math.min(VW-.8*c,q.x-drag.dx));
+  p.y=Math.max(-.2*c,Math.min(VH-.8*c,q.y-drag.dy));
+  setT(p);
+});
+const endDrag=()=>{
+  if(!drag)return;const p=drag.p;
+  if(drag.moved)trySnap(p);
+  else if(rotOn){
+    if(!timer&&!over){t0=Date.now();timer=setInterval(()=>{$('time').textContent=fmt(Date.now()-t0)},250)}
+    p.rot=(p.rot+90)%360;setT(p);trySnap(p);
+  }
+  drag=null;
+};
+svg.addEventListener('pointerup',endDrag);
+svg.addEventListener('pointercancel',()=>{drag=null});
 
-document.getElementById('shuffle').onclick=shuffle;
-document.getElementById('peek').onclick=()=>{prev.style.display=prev.style.display==='block'?'none':'block'};
-document.getElementById('file').onchange=e=>{
+[[5,'25'],[8,'64'],[10,'100']].forEach(([s,l])=>{
+  const b=document.createElement('button');b.textContent=l+' pièces';b.dataset.n=s;
+  b.onclick=()=>{n=s;document.querySelectorAll('#sizes button').forEach(x=>x.classList.toggle('on',+x.dataset.n===n));build()};
+  $('sizes').appendChild(b);
+});
+document.querySelector('#sizes button[data-n="10"]').classList.add('on');
+$('shuffle').onclick=build;
+$('rot').onclick=()=>{rotOn=!rotOn;$('rot').classList.toggle('on',rotOn);build()};
+$('guide').onclick=()=>{guideOn=!guideOn;$('guide').classList.toggle('on',guideOn);ghost.setAttribute('opacity',guideOn?.18:0)};
+$('file').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
-  r.onload=()=>{setImage(r.result);shuffle()};
+  r.onload=()=>{
+    const i=new Image();
+    i.onload=()=>{
+      const cv=document.createElement('canvas');cv.width=cv.height=1000;
+      const s=Math.min(i.width,i.height);
+      cv.getContext('2d').drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,1000,1000);
+      setImage(cv.toDataURL('image/jpeg',.9));
+    };
+    i.src=r.result;
+  };
   r.readAsDataURL(f);
 };
-
-const c=document.createElement('canvas');c.width=c.height=600;drawDefault(c);
-setImage(c.toDataURL('image/jpeg',.9));
-shuffle();
+const c0=document.createElement('canvas');c0.width=c0.height=1000;drawDefault(c0);
+setImage(c0.toDataURL('image/jpeg',.9));
 </script>
 </body>
 </html>
