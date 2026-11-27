@@ -12,7 +12,7 @@
 :root[data-theme="dark"]{--bg1:#120e24;--bg2:#2a1236;--fg:#f3effc;--mute:#a79fc2;--card:rgba(255,255,255,.07);--solid:#1d1833;--line:rgba(255,255,255,.16);--shadow:0 10px 30px rgba(0,0,0,.5);color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:linear-gradient(135deg,var(--bg1),var(--bg2)) fixed;color:var(--fg);font-family:Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px}
+body{background:linear-gradient(135deg,var(--bg1),var(--bg2)) fixed;color:var(--fg);font-family:Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:20px 12px}
 h1{margin:0;font-size:clamp(1.5rem,5vw,2.2rem);font-weight:800;text-align:center;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{margin:2px 0 14px;color:var(--mute);font-size:.85rem;text-align:center}
 .stats{display:flex;gap:10px;justify-content:center}
@@ -255,8 +255,8 @@ function updNav(){
 addEventListener('scroll',updNav,{passive:true});
 addEventListener('resize',updNav);
 new ResizeObserver(updNav).observe(document.body);
-upB.onclick=()=>scrollBy({top:-innerHeight*.6,behavior:'smooth'});
-dnB.onclick=()=>scrollBy({top:innerHeight*.6,behavior:'smooth'});
+upB.onclick=()=>scrollBy({top:-innerHeight*.4,behavior:'smooth'});
+dnB.onclick=()=>scrollBy({top:innerHeight*.4,behavior:'smooth'});
 updNav();
 const c0=document.createElement('canvas');c0.width=c0.height=1000;drawDefault(c0);
 setImage(c0.toDataURL('image/jpeg',.9));
