@@ -48,7 +48,12 @@ button.tg.on{background:var(--solid);border-color:var(--a1);color:var(--a1)}
 @keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
 .cf{position:fixed;top:-14px;width:9px;height:14px;z-index:30;animation:fall linear forwards;pointer-events:none}
 @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
-@media (prefers-reduced-motion:reduce){.cf{display:none}.fresh{animation:none}}
+.scroll-nav{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);display:none;flex-direction:column;gap:10px;z-index:15}
+.scroll-nav button{width:42px;height:42px;padding:0;border-radius:50%;font-size:1rem;line-height:1;display:grid;place-items:center;background:var(--solid);box-shadow:var(--shadow);transition:opacity .2s;animation:nudge 1.6s ease-in-out 3}
+.scroll-nav button.hide{opacity:0;pointer-events:none}
+@keyframes nudge{50%{margin-top:-5px}}
+@media (max-width:900px){.scroll-nav{display:flex}}
+@media (prefers-reduced-motion:reduce){.cf{display:none}.fresh{animation:none}.scroll-nav button{animation:none}}
 @media (max-width:600px){
   body{padding:12px 8px}
   .stat{min-width:78px;padding:5px 10px}
@@ -75,6 +80,10 @@ button.tg.on{background:var(--solid);border-color:var(--a1);color:var(--a1)}
   <label class="btn">🖼️ Ma photo<input id="file" type="file" accept="image/*" hidden></label>
 </div>
 <p class="help">Glisse chaque pièce à sa place. Touche une pièce sans la déplacer pour la faire pivoter. Bien placée et dans le bon sens, elle se verrouille toute seule.</p>
+<div class="scroll-nav">
+  <button id="up" class="hide" aria-label="Monter">▲</button>
+  <button id="down" aria-label="Descendre">▼</button>
+</div>
 <div id="win"><div class="card"><div class="big">🎉</div><h2>Bravo !</h2><p id="winTxt"></p><button class="primary" id="again">Rejouer</button></div></div>
 <script>
 const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',svg=$('svg'),S=600,B=20;
@@ -237,6 +246,18 @@ addEventListener('resize',()=>{
   const land=innerWidth>=innerHeight*1.1;
   if(land!==lastLand&&!timer&&!placed)build();
 });
+const upB=$('up'),dnB=$('down');
+function updNav(){
+  const max=document.documentElement.scrollHeight-innerHeight;
+  upB.classList.toggle('hide',scrollY<20);
+  dnB.classList.toggle('hide',scrollY>max-20||max<40);
+}
+addEventListener('scroll',updNav,{passive:true});
+addEventListener('resize',updNav);
+new ResizeObserver(updNav).observe(document.body);
+upB.onclick=()=>scrollBy({top:-innerHeight*.6,behavior:'smooth'});
+dnB.onclick=()=>scrollBy({top:innerHeight*.6,behavior:'smooth'});
+updNav();
 const c0=document.createElement('canvas');c0.width=c0.height=1000;drawDefault(c0);
 setImage(c0.toDataURL('image/jpeg',.9));
 </script>
