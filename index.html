@@ -5,49 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Puzzle 100 pièces</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f4ef;--fg:#222;--card:#fff;--accent:#d9622b;--line:rgba(0,0,0,.25);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.3);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#1b1a19;--fg:#eee;--card:#2a2826;--accent:#f08a54;--line:rgba(255,255,255,.3);color-scheme:dark}
+:root{--bg1:#f5f0ff;--bg2:#ffe9e0;--fg:#1d1a2b;--mute:#6b6580;--card:rgba(255,255,255,.7);--solid:#fff;--line:rgba(60,40,120,.2);--a1:#7c4dff;--a2:#ff4d8d;--a3:#ff9f43;--shadow:0 10px 30px rgba(80,50,160,.2);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#120e24;--bg2:#2a1236;--fg:#f3effc;--mute:#a79fc2;--card:rgba(255,255,255,.07);--solid:#1d1833;--line:rgba(255,255,255,.16);--shadow:0 10px 30px rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{--bg1:#120e24;--bg2:#2a1236;--fg:#f3effc;--mute:#a79fc2;--card:rgba(255,255,255,.07);--solid:#1d1833;--line:rgba(255,255,255,.16);--shadow:0 10px 30px rgba(0,0,0,.5);color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:16px}
-h1{font-size:1.4rem;margin:4px 0 8px;text-align:center}
-.info{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-bottom:10px;font-size:.95rem}
-svg{display:block;touch-action:none;user-select:none;-webkit-user-select:none;height:auto;max-width:100%;max-height:max(calc(100vh - 250px),520px);max-height:max(calc(100dvh - 250px),520px)}
-.bd{fill:var(--card)}
-.tr{fill:rgba(128,128,128,.1);stroke:var(--line);stroke-dasharray:6 6}
+body{background:linear-gradient(135deg,var(--bg1),var(--bg2)) fixed;color:var(--fg);font-family:Poppins,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px}
+h1{margin:0;font-size:clamp(1.5rem,5vw,2.2rem);font-weight:800;text-align:center;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:2px 0 14px;color:var(--mute);font-size:.85rem;text-align:center}
+.stats{display:flex;gap:10px;justify-content:center}
+.stat{background:var(--card);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:6px 16px;text-align:center;min-width:92px;box-shadow:var(--shadow)}
+.stat small{display:block;color:var(--mute);font-size:.65rem;text-transform:uppercase;letter-spacing:.08em}
+.stat b{font-size:1.15rem}
+#bar{height:6px;border-radius:9px;background:var(--line);margin:12px 0;overflow:hidden;max-width:100%}
+#pb{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3));transition:width .3s}
+svg{display:block;touch-action:none;user-select:none;-webkit-user-select:none;height:auto;max-width:100%;max-height:max(calc(100vh - 300px),520px);max-height:max(calc(100dvh - 300px),520px)}
+.bd{fill:var(--card);stroke:var(--line)}
+.tr{fill:rgba(128,128,128,.08);stroke:var(--line);stroke-dasharray:6 6}
 .pc{cursor:grab}
+.pc.lift{filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
 .done{cursor:default}
-.done>path{stroke:rgba(0,0,0,.15)}
-#msg{min-height:1.4em;font-weight:600;color:var(--accent);text-align:center;margin-top:8px}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;justify-content:center}
-button,label.btn{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--line);padding:8px 14px;border-radius:8px;cursor:pointer}
-button:hover,label.btn:hover{border-color:var(--accent)}
-button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-.help{font-size:.85rem;opacity:.7;text-align:center;max-width:520px}
+.done>path{stroke:rgba(0,0,0,.12)}
+.fresh{animation:glow .5s}
+@keyframes glow{0%{filter:brightness(1.9) saturate(1.5)}100%{filter:none}}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0;justify-content:center;align-items:center}
+button,label.btn{font:inherit;font-weight:500;font-size:.9rem;background:var(--card);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--fg);border:1px solid var(--line);padding:9px 16px;border-radius:12px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+button:hover,label.btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+button.primary{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;border:0}
+button.tg.on{background:var(--solid);border-color:var(--a1);color:var(--a1)}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:7px 14px;box-shadow:none}
+.seg button.on{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff}
+.help{font-size:.8rem;color:var(--mute);text-align:center;max-width:520px;margin:6px 0 0}
+#win{position:fixed;inset:0;display:none;place-items:center;background:rgba(10,5,30,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);z-index:20}
+#win.show{display:grid}
+.card{background:var(--solid);border-radius:22px;padding:28px 34px;text-align:center;box-shadow:var(--shadow);animation:pop .4s;max-width:90vw}
+.card .big{font-size:3rem}
+.card h2{margin:4px 0;font-size:1.6rem;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card p{color:var(--mute);margin:6px 0 16px}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.cf{position:fixed;top:-14px;width:9px;height:14px;z-index:30;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){.cf{display:none}.fresh{animation:none}}
 @media (max-width:600px){
-  body{padding:8px}
-  h1{font-size:1.2rem}
-  .info{font-size:.85rem;gap:4px 12px}
-  button,label.btn{padding:7px 10px;font-size:.9rem}
-  .help{font-size:.8rem}
+  body{padding:12px 8px}
+  .stat{min-width:78px;padding:5px 10px}
+  button,label.btn{padding:8px 12px;font-size:.85rem}
+  .seg button{padding:6px 10px}
 }
 </style>
 </head>
 <body>
 <h1>🧩 Puzzle <span id="count">100</span> pièces</h1>
-<div class="info"><span>Temps : <b id="time">0:00</b></span><span>Placées : <b id="placed">0</b>/<span id="total">100</span></span><span>Record : <b id="best">–</b></span></div>
-<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
-<div id="msg"></div>
-<div class="btns" id="sizes"></div>
-<div class="btns">
-  <button id="shuffle">Nouvelle partie</button>
-  <button id="rot" class="on">Rotation</button>
-  <button id="guide" class="on">Guide</button>
-  <label class="btn">Ma photo<input id="file" type="file" accept="image/*" hidden></label>
+<p class="sub">Glisse, tourne, assemble</p>
+<div class="stats">
+  <div class="stat"><small>Temps</small><b id="time">0:00</b></div>
+  <div class="stat"><small>Placées</small><b><span id="placed">0</span>/<span id="total">100</span></b></div>
+  <div class="stat"><small>Record</small><b id="best">–</b></div>
 </div>
-<p class="help">Glisse chaque pièce à sa place. Touche une pièce sans la déplacer pour la faire pivoter. Quand elle est bien placée et dans le bon sens, elle se verrouille toute seule.</p>
+<div id="bar"><i id="pb"></i></div>
+<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+<div class="btns"><div class="seg" id="sizes"></div></div>
+<div class="btns">
+  <button id="shuffle" class="primary">🔀 Nouvelle partie</button>
+  <button id="rot" class="tg on">🔄 Rotation</button>
+  <button id="guide" class="tg on">👁️ Guide</button>
+  <label class="btn">🖼️ Ma photo<input id="file" type="file" accept="image/*" hidden></label>
+</div>
+<p class="help">Glisse chaque pièce à sa place. Touche une pièce sans la déplacer pour la faire pivoter. Bien placée et dans le bon sens, elle se verrouille toute seule.</p>
+<div id="win"><div class="card"><div class="big">🎉</div><h2>Bravo !</h2><p id="winTxt"></p><button class="primary" id="again">Rejouer</button></div></div>
 <script>
 const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',svg=$('svg'),S=600,B=20;
 let n=innerWidth<600?5:10,c=60,rotOn=true,guideOn=true,imgURL='',H,V,placed=0,t0=0,timer=null,over=false,drag=null,gLoose,gLocked,VW,VH,ghost,lastLand;
@@ -89,7 +117,8 @@ function showBest(){
 }
 function build(){
   stopT();over=false;placed=0;drag=null;c=S/n;
-  $('time').textContent='0:00';$('msg').textContent='';$('placed').textContent=0;
+  $('win').classList.remove('show');$('pb').style.width='0';
+  $('time').textContent='0:00';$('placed').textContent=0;
   $('total').textContent=n*n;$('count').textContent=n*n;showBest();
   svg.innerHTML='';
   H=Array.from({length:n+1},(_,r)=>Array.from({length:n},()=>r===0||r===n?0:Math.random()<.5?1:-1));
@@ -100,10 +129,11 @@ function build(){
   const tx=land?2*B+S:B,ty=land?B:2*B+S;
   svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);
   svg.style.width=land?'min(97vw,1100px)':'min(94vw,520px)';
+  $('bar').style.width=svg.style.width;
   const defs=el('defs',{},svg);
   el('image',{id:'im',href:imgURL,width:S,height:S,preserveAspectRatio:'xMidYMid slice'},defs);
-  el('rect',{class:'tr',x:tx,y:ty,width:tw,height:th,rx:10},svg);
-  el('rect',{class:'bd',x:B,y:B,width:S,height:S,rx:4},svg);
+  el('rect',{class:'tr',x:tx,y:ty,width:tw,height:th,rx:14},svg);
+  el('rect',{class:'bd',x:B,y:B,width:S,height:S,rx:8},svg);
   ghost=el('use',{href:'#im',x:B,y:B,opacity:guideOn?.18:0},svg);
   gLocked=el('g',{},svg);gLoose=el('g',{},svg);
   const cols=Math.ceil(Math.sqrt(n*n*tw/th)),rows=Math.ceil(n*n/cols),mg=.35*c;
@@ -122,23 +152,36 @@ function build(){
   }
 }
 
+function confetti(){
+  for(let i=0;i<80;i++){
+    const d=document.createElement('div');d.className='cf';
+    d.style.left=Math.random()*100+'vw';
+    d.style.background=`hsl(${Math.random()*360},85%,60%)`;
+    d.style.animationDuration=2+Math.random()*2.5+'s';
+    d.style.animationDelay=Math.random()*.8+'s';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),6000);
+  }
+}
 function pt(e){const q=svg.createSVGPoint();q.x=e.clientX;q.y=e.clientY;return q.matrixTransform(svg.getScreenCTM().inverse())}
 function trySnap(p){
   const X=B+p.col*c,Y=B+p.r*c;
   if(p.rot%360!==0||Math.hypot(p.x-X,p.y-Y)>c*.35)return;
-  p.x=X;p.y=Y;setT(p);p.done=true;p.g.setAttribute('class','pc done');gLocked.appendChild(p.g);
+  p.x=X;p.y=Y;setT(p);p.done=true;p.g.setAttribute('class','pc done fresh');gLocked.appendChild(p.g);
   $('placed').textContent=++placed;
+  $('pb').style.width=placed*100/(n*n)+'%';
   if(placed===n*n)win();
 }
 function win(){
   over=true;stopT();const t=Date.now()-t0;let rec='';
   try{const b=localStorage.getItem(key());if(!b||t<+b){rec=' Nouveau record ! 🏆';localStorage.setItem(key(),t)}}catch(e){}
-  $('msg').textContent='Bravo ! Puzzle terminé en '+fmt(t)+'.'+rec;showBest();
+  $('winTxt').textContent='Puzzle terminé en '+fmt(t)+'.'+rec;
+  showBest();$('win').classList.add('show');confetti();
 }
 svg.addEventListener('pointerdown',e=>{
   const g=e.target.closest('g.pc');if(!g||over)return;
   const p=g._p;if(p.done)return;
-  e.preventDefault();gLoose.appendChild(g);
+  e.preventDefault();gLoose.appendChild(g);g.classList.add('lift');
   const q=pt(e);drag={p,dx:q.x-p.x,dy:q.y-p.y,sx:e.clientX,sy:e.clientY,moved:false};
   try{svg.setPointerCapture(e.pointerId)}catch(_){}
 });
@@ -152,17 +195,17 @@ svg.addEventListener('pointermove',e=>{
   p.y=Math.max(-.2*c,Math.min(VH-.8*c,q.y-drag.dy));
   setT(p);
 });
-const endDrag=()=>{
+svg.addEventListener('pointerup',()=>{
   if(!drag)return;const p=drag.p;
+  p.g.classList.remove('lift');
   if(drag.moved)trySnap(p);
   else if(rotOn){
     if(!timer&&!over){t0=Date.now();timer=setInterval(()=>{$('time').textContent=fmt(Date.now()-t0)},250)}
     p.rot=(p.rot+90)%360;setT(p);trySnap(p);
   }
   drag=null;
-};
-svg.addEventListener('pointerup',endDrag);
-svg.addEventListener('pointercancel',()=>{drag=null});
+});
+svg.addEventListener('pointercancel',()=>{if(drag)drag.p.g.classList.remove('lift');drag=null});
 
 [[5,'25'],[8,'64'],[10,'100']].forEach(([s,l])=>{
   const b=document.createElement('button');b.textContent=l+' pièces';b.dataset.n=s;
@@ -171,6 +214,8 @@ svg.addEventListener('pointercancel',()=>{drag=null});
 });
 document.querySelector('#sizes button[data-n="'+n+'"]').classList.add('on');
 $('shuffle').onclick=build;
+$('again').onclick=build;
+$('win').onclick=e=>{if(e.target.id==='win')$('win').classList.remove('show')};
 $('rot').onclick=()=>{rotOn=!rotOn;$('rot').classList.toggle('on',rotOn);build()};
 $('guide').onclick=()=>{guideOn=!guideOn;$('guide').classList.toggle('on',guideOn);ghost.setAttribute('opacity',guideOn?.18:0)};
 $('file').onchange=e=>{
